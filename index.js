@@ -1,79 +1,144 @@
-const fs = require('fs');
 const inquirer = require('inquirer');
-const html = require('./utils/genHTML');
+const fs = require('fs');
+const Manager = require('./utils/team/manager');
+const Engineer = require('./utils/team/engineer');
+const Intern = require('./utils/team/intern');
+const html = require('./genHTML');
+
 const filename = `index.html`;
-const questions = [
-	{
-		type: 'input',
-		message: 'What is the managers name?',
-		name: 'managerName'
-	}, {
-		type: 'input',
-		message: 'What is the managers ID?',
-		name: 'managerID'
-	}, {
-		type: 'input',
-		message: 'What is the managers email?',
-		name: 'managerEmail'
-	}, {
-		type: 'input',
-		message: 'What is the managers office number?',
-		name: 'managerOffice'
-	}, 	{
-		type: 'list',
-		message: 'Add a team member?',
-		name: 'addMember',
-		choices: ['Add Engineer', 'Add Intern', 'No Thanks']
-	}, {
-		type: 'input',
-		message: 'What is the team members name?',
-		name: 'teammateName',
-		when: (data) => (data.addMember || data.anotherMember) !== 'No Thanks'
-	}, {
-		type: 'input',
-		message: 'What is the team members ID?',
-		name: 'teammateID',
-		when: (data) => (data.addMember || data.anotherMember) !== 'No Thanks'
-	}, {
-		type: 'input',
-		message: 'What is the team members email?',
-		name: 'teammateEmail',
-		when: (data) => (data.addMember || data.anotherMember) !== 'No Thanks'
-	}, {
-		type: 'input',
-		message: 'What is the team members github?',
-		name: 'engineerGit',
-		when: (data) => (data.addMember || data.anotherMember) === 'Add Engineer'
-	}, {
-		type: 'input',
-		message: 'What school does the team member go to?',
-		name: 'internSchool',
-		when: (data) => (data.addMember || data.anotherMember) === 'Add Intern'
-	}, {
-		type: 'list',
-		message: 'Add another team member?',
-		name: 'anotherMember',
-		choices: ['Add Engineer', 'Add Intern', 'No Thanks'],
-		when: (data) => (data.addMember || data.anotherMember) !== 'No Thanks'
-	}
-];
+const employees = [];
 
-// function writeToFile(filename, data) {
-// 	fs.writeFile(filename, data, (err) =>
-// 		err ? console.log(err) : console.log('Success!')
-// 	);
-// }
-
-function init() {
-	console.log("Build your team");
-	inquirer.prompt(questions)
-		.then((data) => 
-			console.log(data)
-		);
+function addManager() {
+  inquirer.prompt([
+		{
+			type: 'input',
+			message: 'What is the managers name?',
+			name: 'name'
+		}, {
+			type: 'input',
+			message: 'What is the managers ID?',
+			name: 'id'
+		}, {
+			type: 'input',
+			message: 'What is the managers email?',
+			name: 'email'
+		}, {
+			type: 'input',
+			message: 'What is the managers office number?',
+			name: 'managerOffice'
+		}
+  ])
+    .then((managerData) => {
+			const manager = new Manager(
+				managerData.name,
+				managerData.id,
+				managerData.email,
+				managerData.managerOffice
+			);
+			employees.push(manager);
+			console.log("Manager added!");
+      mainMenu();
+    })
 }
 
-init();
-	
-	
-	
+function addEngi() {
+	inquirer.prompt([
+		{
+			type: 'input',
+			message: 'What is the engineers name?',
+			name: 'name',
+		}, {
+			type: 'input',
+			message: 'What is the engineers ID?',
+			name: 'id',
+		}, {
+			type: 'input',
+			message: 'What is the engineers email?',
+			name: 'email',
+		}, {
+			type: 'input',
+			message: 'What is the engineers github?',
+			name: 'engiGit',
+		}
+	])
+		.then((engiData) => {
+			const engineer = new Engineer(
+				engiData.name,
+				engiData.id,
+				engiData.email,
+				engiData.engiGit
+			);
+			employees.push(engineer);
+			console.log("Engineer added!");
+      mainMenu();
+    })
+}
 
+function addIntern() {
+	inquirer.prompt([
+		{
+			type: 'input',
+			message: 'What is the interns name?',
+			name: 'name',
+		}, {
+			type: 'input',
+			message: 'What is the interns ID?',
+			name: 'id',
+		}, {
+			type: 'input',
+			message: 'What is the interns email?',
+			name: 'email',
+		}, {
+			type: 'input',
+			message: 'What school does the intern go to?',
+			name: 'internSchool',
+		}
+	])
+		.then((internData) => {
+			const intern = new Intern(
+				internData.name,
+				internData.id,
+				internData.email,
+				internData.internSchool
+			);
+			employees.push(intern);
+			console.log("Intern added!");
+      mainMenu();
+    })
+}
+
+function writeToFile(filename, data) {
+	fs.writeFile(filename, data, (err) =>
+		err ? console.log(err) : console.log('Success!')
+	);
+}
+
+function mainMenu() {
+	console.log(employees);
+  inquirer.prompt(
+		{
+			type: 'list',
+			message: 'Add a team member?',
+			name: 'addMember',
+			choices: ['Add Engineer', 'Add Intern', 'No Thanks']
+		}
+	)
+    .then((data) => {
+			let tm = `${data.addMember}`;
+			switch(tm) {
+				case 'Add Engineer':
+					addEngi();
+					break;
+				case 'Add Intern':
+					addIntern();
+					break;
+				case 'No Thanks':
+					let page = html(employees);
+					writeToFile(filename, page);
+					console.log("Team Built!");
+					break;
+			}
+    })
+}
+
+addManager();

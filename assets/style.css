@@ -1,0 +1,15 @@
+.card {
+	background-color:lightcyan;
+	width: 200px;
+}
+
+.card-header {
+	background-color:lightskyblue;
+	padding: 1.2rem;
+	font-weight: bold;
+}
+
+ul {
+	list-style: none;
+	padding: 1.2rem;
+}
