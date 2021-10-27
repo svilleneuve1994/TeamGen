@@ -114,7 +114,6 @@ function writeToFile(filename, data) {
 }
 
 function mainMenu() {
-	console.log(employees);
   inquirer.prompt(
 		{
 			type: 'list',
